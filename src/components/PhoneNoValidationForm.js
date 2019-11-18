@@ -25,9 +25,9 @@ class PhoneNoValidationForm extends Component {
             .then(response => {
                 var isValid = response.data.valid
                 if (isValid === false) {
-                    alert("The phone number is Invalid !")
+                    alert("Failure : The phone number is Invalid !")
                 } else {
-                    alert("The phone number is Valid !")
+                    alert("Success : The phone number is Valid !")
                     this.setState({ tableData: this.state.tableData.concat(response.data) })
                 }
                 let dataForSelect = { value: response.data.local_format === "" ? this.state.phoneNo : response.data.local_format, display: response.data.valid };
@@ -64,7 +64,7 @@ class PhoneNoValidationForm extends Component {
             <div className="container">
                 <div className="jumbotron">
                     <h1>Phone Number Validation App</h1>
-                    <p>This APP helps to validate Hong Kong phone numbers.</p>
+                    <p>This APP helps to validate Phone numbers.</p>
                 </div>
                 <div className="row">
                 <div className="row">

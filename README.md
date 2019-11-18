@@ -1,4 +1,4 @@
-### iamsoo-interview-b
+## Coding Assingment B
 
 This APP validates phone number.
 
