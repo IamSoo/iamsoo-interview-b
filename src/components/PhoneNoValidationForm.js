@@ -4,31 +4,34 @@ import 'bootstrap/dist/css/bootstrap.css';
 
 class PhoneNoValidationForm extends Component {
 
-    constructor(props) {
-        super(props);
-
-        this.history = [];
+    constructor() {
+        super();
 
         this.state = {
             phoneNo: "",
-            history: this.history,
+            history: [{ value: '', display: 'Select phone number' }],
+            selectedItem: "",
+            tableData: [],
+            //we should read it from some REST endpoint
+            countryCode: "HK"
+
         }
         this.validatePhoneNo = this.validatePhoneNo.bind(this);
     }
 
     validatePhoneNo() {
-        axios.get('http://apilayer.net/api/validate?access_key=ecddb4a256cc0427abc5f44d65d9d433&number=' + this.state.phoneNo + '&country_code=HK&format=1')
+        axios.get('http://apilayer.net/api/validate?access_key=ecddb4a256cc0427abc5f44d65d9d433&number=' + this.state.phoneNo
+            + '&country_code=' + this.state.countryCode + '&format=1')
             .then(response => {
                 var isValid = response.data.valid
                 if (isValid === false) {
                     alert("The phone number is Invalid !")
                 } else {
                     alert("The phone number is Valid !")
+                    this.setState({ tableData: this.state.tableData.concat(response.data) })
                 }
-                
-            })
-            .then(json => {
-                console.log(json)
+                let dataForSelect = { value: response.data.local_format === "" ? this.state.phoneNo : response.data.local_format, display: response.data.valid };
+                this.setState({ history: this.state.history.concat(dataForSelect) })
             })
             .catch(error => (
                 console.log(error)
@@ -36,19 +39,23 @@ class PhoneNoValidationForm extends Component {
     }
 
 
+
     handlePhoneNoChange = (event) => {
-        var joined = this.state.history.concat(event.target.value);
         this.setState({
-            phoneNo: event.target.value,
-            history: joined 
+            phoneNo: event.target.value
+        })
+    }
+
+    handleCountryCodeOnchange = (event) => {
+        this.setState({
+            countryCode: event.target.value
         })
     }
 
     handleSelectOnChange = (event) => {
-        var joined = this.state.history.concat(event.target.value);
         this.setState({
-            phoneNo: event.target.value,
-            history: joined 
+            selectedItem: event.target.value,
+            phoneNo: event.target.value
         })
     }
 
@@ -59,7 +66,7 @@ class PhoneNoValidationForm extends Component {
                     <h1>Phone Number Validation App</h1>
                     <p>This APP helps to validate Hong Kong phone numbers.</p>
                 </div>
-
+                <div className="row">
                 <div className="row">
                     <div className="col">
                         <form>
@@ -71,38 +78,64 @@ class PhoneNoValidationForm extends Component {
                                     value={this.state.phoneNo}
                                     onChange={this.handlePhoneNoChange} />
                             </div>
-                            <div className="form-group col-md-4" >
-                                <label>History :</label>
-                                <select
-                                    id="history"
-                                    multiple={false}
+                            <div className="form-group col-sm-2" >
+                                <label>Country Code:</label>
+                                <input
+                                    id="countryCode"
                                     className="form-control"
-                                    value={this.state.history}
-                                    onChange={this.handlePhoneNoChange} />
+                                    value={this.state.countryCode}
+                                    onChange={this.handleCountryCodeOnchange} />
+                            </div>
+
+                            <div className="form-group col-md-4">
+                                <label>History :</label>
+                                <select className="form-control" value={this.state.selectedItem} onChange={this.handleSelectOnChange}>
+                                    {this.state.history.map((hist, i) => <option key={i} value={hist.value}>{hist.value}</option>)}
+                                </select>
                             </div>
                         </form>
                     </div>
-                    </div>
-               
-                <div className="row col-md-4">
-                    <button className="btn btn-primary" onClick={this.validatePhoneNo}>Validate</button>
+
                 </div>
-                <p className="h2 text-lg-left">Phone number Validation History</p>
+                <div className="row col-md-12">
+                    <button className="btn btn-primary col-md-1" onClick={this.validatePhoneNo}>Validate</button>
+                </div>
+                <div class="row form-group"></div>
                 <div className="col">
-                        <table className="table table-dark">
-                            <thead>
-                                <tr>
-                                    <th scope="col">PhoneNo</th>
-                                    <th scope="col">ValidStatus</th>
-                                    <th scope="col">Exception</th>
-                                </tr>
-                            </thead>
-                        </table>
+                    <table className="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Phone No</th>
+                                <th scope="col">Validation Status</th>
+                                <th scope="col">Local Format</th>
+                                <th scope="col">International Format</th>
+                                <th scope="col">Country Prefix</th>
+                                <th scope="col">Country Code</th>
+                                <th scope="col">Country Name</th>
+                                <th scope="col">Carrier</th>
+                                <th scope="col">Line Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.state.tableData.map((data, i) =>
+                                <tr key={i}>
+                                    <td>{data.number}</td>
+                                    <td>{data.valid === true ? "Valid" : "Invalid"}</td>
+                                    <td>{data.local_format}</td>
+                                    <td>{data.international_format}</td>
+                                    <td>{data.country_prefix}</td>
+                                    <td>{data.country_code}</td>
+                                    <td>{data.country_name}</td>
+                                    <td>{data.carrier}</td>
+                                    <td>{data.line_type}</td>
+                                </tr>)}
+                        </tbody>
+                    </table>
                     </div>
+                </div>
             </div>
         )
     }
-
 }
 
 export default PhoneNoValidationForm;
