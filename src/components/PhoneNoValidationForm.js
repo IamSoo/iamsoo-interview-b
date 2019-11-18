@@ -29,9 +29,10 @@ class PhoneNoValidationForm extends Component {
                 } else {
                     alert("Success : The phone number is Valid !")
                     this.setState({ tableData: this.state.tableData.concat(response.data) })
+                    let dataForSelect = { value: response.data.local_format === "" ? this.state.phoneNo : response.data.local_format, display: response.data.valid };
+                    this.setState({ history: this.state.history.concat(dataForSelect) })
                 }
-                let dataForSelect = { value: response.data.local_format === "" ? this.state.phoneNo : response.data.local_format, display: response.data.valid };
-                this.setState({ history: this.state.history.concat(dataForSelect) })
+                
             })
             .catch(error => (
                 console.log(error)
@@ -100,7 +101,7 @@ class PhoneNoValidationForm extends Component {
                 <div className="row col-md-12">
                     <button className="btn btn-primary col-md-1" onClick={this.validatePhoneNo}>Validate</button>
                 </div>
-                <div class="row form-group"></div>
+                <div className="row form-group"></div>
                 <div className="col">
                     <table className="table table-bordered">
                         <thead>
